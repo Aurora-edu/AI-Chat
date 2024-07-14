@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chat</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f4; /* 设置背景颜色 */
+            /*background-image: url('argenteuil-late-afternoon(1).jpg');  设置背景图片 */
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-position: center center;
+        }
+        #chat-container {
+            height: 600px;
+            overflow-y: scroll;
+            border: 1px solid #61d0f1;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        #user-input {
+            width: 70%;
+            padding: 5px;
+        }
+        #send-button {
+            padding: 5px 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>AI Chat</h1>
+    <div id="chat-container"></div>
+    <textarea id="user-input" placeholder="Type your message..." rows="10" cols="50"></textarea>
+    <button id="send-button">Send</button>
+
+    <script>
+        $(document).ready(function() {
+            $('#send-button').click(sendMessage);
+            $('#user-input').keydown(function(e) {
+                if (e.which === 13 && e.ctrlKey) { // 检查是否同时按下 Ctrl 键
+                    sendMessage();
+                }
+            });
+
+            function sendMessage() {
+                var userInput = $('#user-input').val();
+                if (userInput) {
+                    userInput = userInput.replace(/\n/g, '<br>');
+                    $('#chat-container').append('<pre><strong>You:</strong> ' + userInput + '</pre>');
+                    $('#user-input').val('');
+                    $.ajax({
+                        url: '/chat',
+                        method: 'POST',
+                        contentType: 'application/json',
+                        data: JSON.stringify({message: userInput}),
+                        success: function(response) {
+                            var responseText = response.response;
+                            responseText = responseText.replace(/\n/g, '<br>');
+                            $('#chat-container').append('<pre><strong>AI:</strong> ' + responseText + '</pre>');
+                            $('#chat-container').scrollTop($('#chat-container')[0].scrollHeight);
+                        }
+                    });
+                }
+            }
+        });
+    </script>
+</body>
+</html>
